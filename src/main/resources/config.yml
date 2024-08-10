@@ -1,0 +1,9 @@
+database:
+  mongodb-connection-string: ""
+
+messages:
+  ban: "You have been permanently banned from this server. Reason: {reason}"
+  tempBan: "You have been banned from this server for {duration}"
+  kick: "You have been kicked from this server. Reason: {reason}"
+  muted: "You have been muted for {duration}. Reason: {reason}"
+
