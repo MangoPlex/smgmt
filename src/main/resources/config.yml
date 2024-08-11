@@ -1,9 +1,13 @@
 database:
-  mongodb-connection-string: ""
+  mongodb:
+    # MongoDB database connection string
+    # Example format: mongodb://username:password@host:port/dbName?tls=true
+    # NOTE: The connection string must be URI-encoded
+    mongodb-connection-string: ""
+
 
 messages:
   ban: "You have been permanently banned from this server. Reason: {reason}"
-  tempBan: "You have been banned from this server for {duration}"
+  tempBan: "You have been banned from this server for {duration}. Reason: {reason}"
   kick: "You have been kicked from this server. Reason: {reason}"
   muted: "You have been muted for {duration}. Reason: {reason}"
-
