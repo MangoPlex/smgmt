@@ -8,8 +8,8 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.justapie.smgmt.commands.VCommand;
-import net.justapie.smgmt.utils.Config;
-import net.justapie.smgmt.utils.ConfigFormatter;
+import net.justapie.smgmt.config.Config;
+import net.justapie.smgmt.config.ConfigFormatter;
 import net.kyori.adventure.text.Component;
 
 import java.util.Optional;
@@ -34,15 +34,25 @@ public class Ban extends VCommand {
                         ).executes(
                                 ctx -> {
                                     Optional<Player> player = proxy.getPlayer(ctx.getArgument("player", String.class));
-                                    player.ifPresent(value -> value.disconnect(
-                                            Component.text(
-                                                    new ConfigFormatter(
-                                                            Config.getInstance().getConfigNode().node("messages", "ban").getString()
-                                                    )
-                                                            .putKV("reason", "No Reason Provided")
-                                                            .build()
-                                            )
-                                    ));
+                                    if (player.isPresent()) {
+                                        if (ctx.getSource() instanceof Player && player.get().getUniqueId().equals(((Player) ctx.getSource()).getUniqueId())) {
+                                            ctx.getSource().sendPlainMessage("You cannot ban yourself");
+                                            return Command.SINGLE_SUCCESS;
+                                        }
+
+                                        player.get().disconnect(
+                                                Component.text(
+                                                        new ConfigFormatter(
+                                                                Config.getMessageNode()
+                                                                        .node("ban")
+                                                                        .getString()
+                                                        )
+                                                                .putKV("reason", "No Reason Provided")
+                                                                .build()
+                                                )
+                                        );
+                                    }
+                                    ctx.getSource().sendPlainMessage("Player banned");
                                     return Command.SINGLE_SUCCESS;
                                 }
                         )
