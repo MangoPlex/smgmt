@@ -1,4 +1,4 @@
-package net.justapie.smgmt.utils;
+package net.justapie.smgmt.config;
 
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
@@ -9,11 +9,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class Config {
-    private static final Config instance = new Config();
+public class ConfigHelper {
+    private static final ConfigHelper instance = new ConfigHelper();
     private CommentedConfigurationNode config;
 
-    public static Config getInstance() {
+    public static ConfigHelper getInstance() {
         return instance;
     }
 
@@ -32,7 +32,7 @@ public class Config {
         this.config = loader.load();
     }
 
-    public CommentedConfigurationNode getConfigNode() {
+    public CommentedConfigurationNode getConfig() {
         return this.config;
     }
 }

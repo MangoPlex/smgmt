@@ -1,6 +1,7 @@
 package net.justapie.smgmt;
 
 import com.google.inject.Inject;
+import com.mongodb.MongoException;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
@@ -8,18 +9,21 @@ import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.justapie.smgmt.commands.CmdManager;
-import net.justapie.smgmt.utils.Config;
+import net.justapie.smgmt.config.ConfigHelper;
+import net.justapie.smgmt.database.MongoHelper;
 import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Optional;
 
 @Plugin(
         id = "smgmt",
         name = "ServerManagement",
         description = "Proxy-wide moderation utilities for Velocity",
-        authors = "JustAPie"
+        authors = "JustAPie",
+        version = "release"
 )
 public class Main {
     private final ProxyServer proxy;
@@ -35,16 +39,19 @@ public class Main {
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        new CmdManager(this.proxy);
+        new CmdManager(this.proxy, this.dataDirectory);
 
         try {
-            Config.getInstance().initializeConfig(this.dataDirectory);
-        } catch (IOException e) {
+            ConfigHelper.getInstance().initializeConfig(this.dataDirectory);
+            MongoHelper.getInstance().initializeDatabase();
+        } catch (IOException | MongoException e) {
             this.logger.error("Failed to load config. Shutting down");
+            logger.error(Arrays.toString(e.getStackTrace()));
             Optional<PluginContainer> container = this.proxy.getPluginManager().getPlugin("smgmt");
             container.ifPresent(ctx -> ctx.getExecutorService().shutdown());
             return;
         }
+
         this.logger.info("SMGMT is initialized");
     }
 }

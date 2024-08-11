@@ -1,4 +1,4 @@
-package net.justapie.smgmt.utils;
+package net.justapie.smgmt.config;
 
 import org.apache.commons.text.StringSubstitutor;
 
