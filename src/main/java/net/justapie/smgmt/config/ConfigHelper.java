@@ -1,7 +1,6 @@
 package net.justapie.smgmt.config;
 
 import org.spongepowered.configurate.CommentedConfigurationNode;
-import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import java.io.IOException;
@@ -17,18 +16,23 @@ public class ConfigHelper {
         return instance;
     }
 
-    public void initializeConfig(Path dataDirectory) throws IOException, ConfigurateException {
+    public Path createFile(Path dataDirectory, String fileName) throws IOException {
         if (Files.notExists(dataDirectory)) {
             Files.createDirectory(dataDirectory);
         }
-        Path config = dataDirectory.resolve("config.yml");
+        Path configFilePath = dataDirectory.resolve(fileName);
 
-        if (Files.notExists(config)) {
-            InputStream stream = this.getClass().getClassLoader().getResourceAsStream("config.yml");
-            Files.copy(stream, config);
+        if (Files.notExists(configFilePath)) {
+            InputStream stream = this.getClass().getClassLoader().getResourceAsStream(fileName);
+            Files.copy(stream, configFilePath);
         }
+        return configFilePath;
+    }
 
-        YamlConfigurationLoader loader = YamlConfigurationLoader.builder().file(config.toFile()).build();
+    public void initializeConfig(Path dataDirectory) throws IOException {
+        YamlConfigurationLoader loader = YamlConfigurationLoader.builder()
+                .file(this.createFile(dataDirectory, "config.yml").toFile())
+                .build();
         this.config = loader.load();
     }
 
