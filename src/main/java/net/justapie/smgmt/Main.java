@@ -23,7 +23,7 @@ import java.util.Optional;
         name = "ServerManagement",
         description = "Proxy-wide moderation utilities for Velocity",
         authors = "JustAPie",
-        version = "release"
+        version = BuildConstants.VERSION
 )
 public class Main {
     private final ProxyServer proxy;
@@ -39,13 +39,17 @@ public class Main {
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
+        this.proxy.getEventManager().register(this, new Events());
+
         new CmdManager(this.proxy, this.dataDirectory);
 
         try {
             ConfigHelper.getInstance().initializeConfig(this.dataDirectory);
+
             MongoHelper.getInstance().initializeDatabase();
         } catch (IOException | MongoException e) {
-            this.logger.error("Failed to load config. Shutting down");
+            if (e instanceof IOException) this.logger.error("Failed to load config. Shutting down");
+            if (e instanceof MongoException) this.logger.error("Please specify mongodb connection string");
             logger.error(Arrays.toString(e.getStackTrace()));
             Optional<PluginContainer> container = this.proxy.getPluginManager().getPlugin("smgmt");
             container.ifPresent(ctx -> ctx.getExecutorService().shutdown());
@@ -54,4 +58,5 @@ public class Main {
 
         this.logger.info("SMGMT is initialized");
     }
+
 }
