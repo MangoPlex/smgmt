@@ -18,7 +18,7 @@ public class MongoHelper {
     public void initializeDatabase() {
         ds = Morphia.createDatastore(
                 MongoClients.create(
-                        databaseNode.node("mongodb", "mongodb-connection-string").getString()
+                        databaseNode.node("mongodb-connection-string").getString()
                 )
         );
     }
