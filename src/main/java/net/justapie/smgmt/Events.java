@@ -11,7 +11,6 @@ import net.justapie.smgmt.database.MongoHelper;
 import net.justapie.smgmt.database.models.BanRecord;
 import net.kyori.adventure.text.Component;
 
-import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 
