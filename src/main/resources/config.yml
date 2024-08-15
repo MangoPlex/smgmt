@@ -10,6 +10,7 @@ messages:
   ban: "You have been permanently banned from this server. Reason: {reason}"
   tempBan: "You have been banned from this server for {duration}. Reason: {reason}. You will be automatically unbanned on {unbanDate}"
   kick: "You have been kicked from this server. Reason: {reason}"
+  kickFailed: "You cannot kick an offline player"
   muted: "You have been muted for {duration}. Reason: {reason}"
   playerBanned: "Player {player} has been banned"
   cannotBanSelf: "You cannot ban yourself"

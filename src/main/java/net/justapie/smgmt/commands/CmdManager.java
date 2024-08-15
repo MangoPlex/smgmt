@@ -5,6 +5,7 @@ import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.justapie.smgmt.commands.config.Reload;
 import net.justapie.smgmt.commands.moderation.Ban;
+import net.justapie.smgmt.commands.moderation.Kick;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -19,7 +20,8 @@ public class CmdManager {
 
         this.registerCommand(
                 new Ban(),
-                new Reload(this.dataDir)
+                new Reload(this.dataDir),
+                new Kick()
         );
     }
 
