@@ -1,8 +1,11 @@
 package net.justapie.smgmt.database;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClients;
 import dev.morphia.Datastore;
 import dev.morphia.Morphia;
+import dev.morphia.config.MorphiaConfig;
 import net.justapie.smgmt.config.Config;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 
@@ -16,11 +19,22 @@ public class MongoHelper {
     }
 
     public void initializeDatabase() {
-        ds = Morphia.createDatastore(
+        this.ds = Morphia.createDatastore(
                 MongoClients.create(
-                        databaseNode.node("mongodb-connection-string").getString()
-                )
+                        MongoClientSettings.builder()
+                                .applyConnectionString(
+                                        new ConnectionString(
+                                                databaseNode.node("mongodb-connection-string").getString()
+                                        )
+                                )
+                                .applicationName("smgmt")
+                                .retryReads(true)
+                                .retryWrites(true)
+                                .build()
+                ),
+                MorphiaConfig.load().database("smgmt")
         );
+
     }
 
     public Datastore getDs() {
