@@ -23,6 +23,7 @@ public class Reload extends VCommand {
   @Override
   public BrigadierCommand makeBrigadierCommand(ProxyServer proxy) {
     LiteralCommandNode<CommandSource> cmdNode = BrigadierCommand.literalArgumentBuilder(this.name)
+      .requires(src -> src.hasPermission("smgmt.reload"))
       .then(
         BrigadierCommand.requiredArgumentBuilder("reload", StringArgumentType.word())
           .suggests((ctx, builder) -> builder.suggest("reload").buildFuture())

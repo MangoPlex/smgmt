@@ -1,10 +1,10 @@
 package net.justapie.smgmt.commands.moderation;
 
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
+import net.justapie.smgmt.Constants;
 import net.justapie.smgmt.commands.VCommand;
 import net.justapie.smgmt.config.Config;
 import net.justapie.smgmt.config.ConfigFormatter;
@@ -21,50 +21,40 @@ public class Kick extends VCommand {
   public BrigadierCommand makeBrigadierCommand(ProxyServer proxy) {
     return new BrigadierCommand(
       BrigadierCommand.literalArgumentBuilder(this.name)
+        .requires(src -> src.hasPermission("smgmt.moderation.kick"))
         .then(
-          BrigadierCommand.requiredArgumentBuilder(
-            "player",
-            StringArgumentType.word()
-          ).suggests(
-            (ctx, builder) -> {
-              proxy.getAllPlayers().forEach(
-                val -> builder.suggest(val.getUsername())
-              );
-              return builder.buildFuture();
-            }
-          ).then(
-            BrigadierCommand.requiredArgumentBuilder(
-              "reason",
-              StringArgumentType.greedyString()
-            ).executes(
-              ctx -> {
-                String username = ctx.getArgument("player", String.class);
-                String reason = ctx.getArgument("reason", String.class);
+          Constants.getPlayerArg(proxy)
+            .then(
+              Constants.getReasonArg()
+                .executes(
+                  ctx -> {
+                    String username = ctx.getArgument("player", String.class);
+                    String reason = ctx.getArgument("reason", String.class);
 
-                Optional<Player> optionalPlayer = proxy.getPlayer(username);
+                    Optional<Player> optionalPlayer = proxy.getPlayer(username);
 
 
-                optionalPlayer.ifPresentOrElse(
-                  player -> player.disconnect(
-                    Component.text(
-                      new ConfigFormatter(
-                        Config.getMessageNode().node("kick").getString()
-                      )
-                        .putKV("reason", reason)
-                        .build()
-                    )
-                  ),
-                  () -> {
-                    ctx.getSource().sendPlainMessage(
-                      Config.getMessageNode().node("kickFailed").getString()
+                    optionalPlayer.ifPresentOrElse(
+                      player -> player.disconnect(
+                        Component.text(
+                          new ConfigFormatter(
+                            Config.getMessageNode().node("kick").getString()
+                          )
+                            .putKV("reason", reason)
+                            .build()
+                        )
+                      ),
+                      () -> {
+                        ctx.getSource().sendPlainMessage(
+                          Config.getMessageNode().node("kickFailed").getString()
+                        );
+                      }
                     );
-                  }
-                );
 
-                return Command.SINGLE_SUCCESS;
-              }
+                    return Command.SINGLE_SUCCESS;
+                  }
+                )
             )
-          )
         )
     );
   }

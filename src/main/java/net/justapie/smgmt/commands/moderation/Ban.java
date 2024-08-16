@@ -9,6 +9,7 @@ import net.justapie.smgmt.commands.VCommand;
 import net.justapie.smgmt.config.Config;
 import net.justapie.smgmt.config.ConfigFormatter;
 import net.justapie.smgmt.database.MongoHelper;
+import net.justapie.smgmt.database.MongoUtils;
 import net.justapie.smgmt.database.models.BanRecord;
 import net.kyori.adventure.text.Component;
 import org.bson.types.ObjectId;
@@ -16,6 +17,7 @@ import org.bson.types.ObjectId;
 import java.time.Duration;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -28,6 +30,7 @@ public class Ban extends VCommand {
   public BrigadierCommand makeBrigadierCommand(ProxyServer proxy) {
     return new BrigadierCommand(
       BrigadierCommand.literalArgumentBuilder(this.name)
+        .requires(src -> src.hasPermission("smgmt.moderation.ban"))
         .then(
           Constants.getPlayerArg(proxy)
             .then(
@@ -100,6 +103,23 @@ public class Ban extends VCommand {
                           );
                         }
 
+                        List<BanRecord> records = MongoUtils.getRecords(username);
+
+                        if (!records.isEmpty()) {
+                          BanRecord banRecord = records.getFirst();
+
+                          if (banRecord.isPermanent() || (Objects.isNull(banRecord.getUnbannedOn()) && banRecord.getBannedUntil().getTime() > now.getTime())) {
+                            ctx.getSource().sendPlainMessage(
+                              new ConfigFormatter(
+                                Config.getMessageNode().node("alreadyBanned").getString()
+                              )
+                                .putKV("player", username)
+                                .build()
+                            );
+                            return Command.SINGLE_SUCCESS;
+                          }
+                        }
+
                         MongoHelper.getInstance().getDs().insert(
                           new BanRecord(
                             new ObjectId(),
@@ -107,7 +127,8 @@ public class Ban extends VCommand {
                             reason,
                             durString.equals("permanent"),
                             now,
-                            new Date(now.getTime() + duration)
+                            new Date(now.getTime() + duration),
+                            null
                           )
                         );
 

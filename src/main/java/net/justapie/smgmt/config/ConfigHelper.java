@@ -9,11 +9,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ConfigHelper {
-  private static final ConfigHelper instance = new ConfigHelper();
+  private static final ConfigHelper INSTANCE = new ConfigHelper();
   private CommentedConfigurationNode config;
 
   public static ConfigHelper getInstance() {
-    return instance;
+    return INSTANCE;
   }
 
   public Path createFile(Path dataDirectory, String fileName) throws IOException {

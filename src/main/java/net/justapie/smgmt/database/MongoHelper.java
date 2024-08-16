@@ -10,12 +10,12 @@ import net.justapie.smgmt.config.Config;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 
 public class MongoHelper {
-  private static final MongoHelper instance = new MongoHelper();
+  private static final MongoHelper INSTANCE = new MongoHelper();
   private static final CommentedConfigurationNode databaseNode = Config.getDatabaseNode();
   private Datastore ds;
 
   public static MongoHelper getInstance() {
-    return instance;
+    return INSTANCE;
   }
 
   public void initializeDatabase() {

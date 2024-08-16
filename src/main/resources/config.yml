@@ -16,3 +16,8 @@ messages:
   cannotBanSelf: "You cannot ban yourself"
   noReason: "No reason provided"
   invalidDur: "Invalid Duration"
+  alreadyBanned: "Player {player} is already banned"
+  noRecord: "No records for {} found"
+  commandUsage: "Invalid command usage"
+  invalidCommand: "Command does not exist"
+  unbanned: "Player {player} unbanned"

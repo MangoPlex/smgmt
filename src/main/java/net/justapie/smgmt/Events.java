@@ -1,32 +1,28 @@
 package net.justapie.smgmt;
 
+import com.velocitypowered.api.command.CommandResult;
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.command.PostCommandInvocationEvent;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.proxy.Player;
-import dev.morphia.query.Query;
+import net.justapie.smgmt.commands.CmdManager;
 import net.justapie.smgmt.config.Config;
 import net.justapie.smgmt.config.ConfigFormatter;
-import net.justapie.smgmt.database.MongoHelper;
+import net.justapie.smgmt.database.MongoUtils;
 import net.justapie.smgmt.database.models.BanRecord;
 import net.kyori.adventure.text.Component;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class Events {
   @Subscribe(order = PostOrder.EARLY)
   public void onLogin(LoginEvent event) {
     Player player = event.getPlayer();
 
-    Query<BanRecord> recordQuery = MongoHelper.getInstance().getDs().find(BanRecord.class);
-
-    List<BanRecord> records = recordQuery.stream()
-      .sorted(
-        (c1, c2) -> Math.toIntExact(c2.getBannedOn().getTime() - c1.getBannedOn().getTime())
-      )
-      .toList();
-
+    List<BanRecord> records = MongoUtils.getRecords(player.getUsername());
 
     if (!records.isEmpty()) {
       BanRecord latestRecord = records.getFirst();
@@ -35,7 +31,10 @@ public class Events {
       if (!latestRecord.isPermanent())
         reason = Config.getMessageNode().node("tempBan").getString();
 
-      if (latestRecord.isPermanent() || latestRecord.getBannedUntil().getTime() > new Date().getTime()) {
+      if (
+        latestRecord.isPermanent() ||
+          (Objects.isNull(latestRecord.getUnbannedOn()) && latestRecord.getBannedUntil().getTime() > new Date().getTime())
+      ) {
         player.disconnect(
           Component.text(
             new ConfigFormatter(
@@ -57,6 +56,28 @@ public class Events {
           )
         );
       }
+    }
+  }
+
+  @Subscribe(order = PostOrder.EARLY)
+  public void onPostCommandInvocation(PostCommandInvocationEvent event) {
+    if (event.getResult().equals(CommandResult.FORWARDED)) {
+      CmdManager.getCommands().stream()
+        .filter(
+          c -> c.getNode().getName().equalsIgnoreCase(event.getCommand().split(" ")[0])
+        ).findFirst()
+        .ifPresentOrElse(
+          ctx -> {
+            event.getCommandSource().sendPlainMessage(
+              Config.getMessageNode().node("commandUsage").getString()
+            );
+          },
+          () -> {
+            event.getCommandSource().sendPlainMessage(
+              Config.getMessageNode().node("invalidCommand").getString()
+            );
+          }
+        );
     }
   }
 }

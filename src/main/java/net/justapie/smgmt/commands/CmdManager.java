@@ -9,34 +9,41 @@ import net.justapie.smgmt.commands.moderation.Kick;
 import net.justapie.smgmt.commands.moderation.Unban;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class CmdManager {
-    private final ProxyServer proxy;
-    private final Path dataDir;
+  private static final List<BrigadierCommand> COMMANDS = new ArrayList<>();
+  private final ProxyServer proxy;
 
-    public CmdManager(ProxyServer proxy, Path dataDir) {
-        this.proxy = proxy;
-        this.dataDir = dataDir;
+  public CmdManager(ProxyServer proxy, Path dataDir) {
+    this.proxy = proxy;
 
-        this.registerCommand(
-          new Ban(),
-          new Reload(this.dataDir),
-          new Kick(),
-          new Unban()
-        );
-    }
+    this.registerCommand(
+      new Ban(),
+      new Reload(dataDir),
+      new Kick(),
+      new Unban()
+    );
+  }
 
-    private void registerCommand(VCommand... cmdList) {
-        Arrays.stream(cmdList).forEach(cmd -> {
-            CommandMeta meta = this.proxy.getCommandManager()
-              .metaBuilder(cmd.name)
-              .aliases(cmd.aliases.toArray(new String[]{}))
-              .build();
+  public static List<BrigadierCommand> getCommands() {
+    return COMMANDS;
+  }
 
-            BrigadierCommand cmdToRegister = cmd.makeBrigadierCommand(this.proxy);
+  private void registerCommand(VCommand... cmdList) {
+    Arrays.stream(cmdList).forEach(cmd -> {
+      CommandMeta meta = this.proxy.getCommandManager()
+        .metaBuilder(cmd.name)
+        .aliases(cmd.aliases.toArray(new String[]{}))
+        .build();
 
-            this.proxy.getCommandManager().register(meta, cmdToRegister);
-        });
-    }
+      BrigadierCommand cmdToRegister = cmd.makeBrigadierCommand(this.proxy);
+
+      COMMANDS.add(cmdToRegister);
+
+      this.proxy.getCommandManager().register(meta, cmdToRegister);
+    });
+  }
 }
