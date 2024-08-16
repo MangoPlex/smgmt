@@ -8,6 +8,7 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.justapie.smgmt.commands.VCommand;
 import net.justapie.smgmt.config.ConfigHelper;
+import net.justapie.smgmt.database.MongoHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,6 +31,7 @@ public class Reload extends VCommand {
           .executes(ctx -> {
             try {
               ConfigHelper.getInstance().initializeConfig(dataDir);
+              MongoHelper.getInstance().initializeDatabase();
             } catch (IOException e) {
               e.printStackTrace();
               ctx.getSource().sendPlainMessage("Error while reloading config");

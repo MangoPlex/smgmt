@@ -3,7 +3,6 @@ package net.justapie.smgmt;
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
-import com.velocitypowered.api.event.permission.PermissionsSetupEvent;
 import com.velocitypowered.api.proxy.Player;
 import net.justapie.smgmt.config.Config;
 import net.justapie.smgmt.config.ConfigFormatter;
@@ -55,10 +54,5 @@ public class Events {
         );
       }
     }
-  }
-
-  @Subscribe
-  public void onPermissionSetup(PermissionsSetupEvent event) {
-    event.setProvider();
   }
 }
