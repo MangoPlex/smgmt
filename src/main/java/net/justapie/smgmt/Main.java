@@ -19,11 +19,11 @@ import java.util.Arrays;
 import java.util.Optional;
 
 @Plugin(
-        id = "smgmt",
-        name = "ServerManagement",
-        description = "Proxy-wide moderation utilities for Velocity",
-        authors = "JustAPie",
-        version = BuildConstants.VERSION
+  id = "smgmt",
+  name = "ServerManagement",
+  description = "Proxy-wide moderation utilities for Velocity",
+  authors = "JustAPie",
+  version = BuildConstants.VERSION
 )
 public class Main {
     private final ProxyServer proxy;

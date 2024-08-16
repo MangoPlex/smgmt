@@ -9,34 +9,34 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ConfigHelper {
-    private static final ConfigHelper instance = new ConfigHelper();
-    private CommentedConfigurationNode config;
+  private static final ConfigHelper instance = new ConfigHelper();
+  private CommentedConfigurationNode config;
 
-    public static ConfigHelper getInstance() {
-        return instance;
+  public static ConfigHelper getInstance() {
+    return instance;
+  }
+
+  public Path createFile(Path dataDirectory, String fileName) throws IOException {
+    if (Files.notExists(dataDirectory)) {
+      Files.createDirectory(dataDirectory);
     }
+    Path configFilePath = dataDirectory.resolve(fileName);
 
-    public Path createFile(Path dataDirectory, String fileName) throws IOException {
-        if (Files.notExists(dataDirectory)) {
-            Files.createDirectory(dataDirectory);
-        }
-        Path configFilePath = dataDirectory.resolve(fileName);
-
-        if (Files.notExists(configFilePath)) {
-            InputStream stream = this.getClass().getClassLoader().getResourceAsStream(fileName);
-            Files.copy(stream, configFilePath);
-        }
-        return configFilePath;
+    if (Files.notExists(configFilePath)) {
+      InputStream stream = this.getClass().getClassLoader().getResourceAsStream(fileName);
+      Files.copy(stream, configFilePath);
     }
+    return configFilePath;
+  }
 
-    public void initializeConfig(Path dataDirectory) throws IOException {
-        YamlConfigurationLoader loader = YamlConfigurationLoader.builder()
-                .file(this.createFile(dataDirectory, "config.yml").toFile())
-                .build();
-        this.config = loader.load();
-    }
+  public void initializeConfig(Path dataDirectory) throws IOException {
+    YamlConfigurationLoader loader = YamlConfigurationLoader.builder()
+      .file(this.createFile(dataDirectory, "config.yml").toFile())
+      .build();
+    this.config = loader.load();
+  }
 
-    public CommentedConfigurationNode getConfig() {
-        return this.config;
-    }
+  public CommentedConfigurationNode getConfig() {
+    return this.config;
+  }
 }

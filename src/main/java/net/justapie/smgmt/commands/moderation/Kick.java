@@ -13,59 +13,59 @@ import net.kyori.adventure.text.Component;
 import java.util.Optional;
 
 public class Kick extends VCommand {
-    public Kick() {
-        super("kick");
-    }
+  public Kick() {
+    super("kick");
+  }
 
-    @Override
-    public BrigadierCommand makeBrigadierCommand(ProxyServer proxy) {
-        return new BrigadierCommand(
-                BrigadierCommand.literalArgumentBuilder(this.name)
-                        .then(
-                                BrigadierCommand.requiredArgumentBuilder(
-                                        "player",
-                                        StringArgumentType.word()
-                                ).suggests(
-                                        (ctx, builder) -> {
-                                            proxy.getAllPlayers().forEach(
-                                                    val -> builder.suggest(val.getUsername())
-                                            );
-                                            return builder.buildFuture();
-                                        }
-                                ).then(
-                                        BrigadierCommand.requiredArgumentBuilder(
-                                                "reason",
-                                                StringArgumentType.greedyString()
-                                        ).executes(
-                                                ctx -> {
-                                                    String username = ctx.getArgument("player", String.class);
-                                                    String reason = ctx.getArgument("reason", String.class);
+  @Override
+  public BrigadierCommand makeBrigadierCommand(ProxyServer proxy) {
+    return new BrigadierCommand(
+      BrigadierCommand.literalArgumentBuilder(this.name)
+        .then(
+          BrigadierCommand.requiredArgumentBuilder(
+            "player",
+            StringArgumentType.word()
+          ).suggests(
+            (ctx, builder) -> {
+              proxy.getAllPlayers().forEach(
+                val -> builder.suggest(val.getUsername())
+              );
+              return builder.buildFuture();
+            }
+          ).then(
+            BrigadierCommand.requiredArgumentBuilder(
+              "reason",
+              StringArgumentType.greedyString()
+            ).executes(
+              ctx -> {
+                String username = ctx.getArgument("player", String.class);
+                String reason = ctx.getArgument("reason", String.class);
 
-                                                    Optional<Player> optionalPlayer = proxy.getPlayer(username);
+                Optional<Player> optionalPlayer = proxy.getPlayer(username);
 
 
-                                                    optionalPlayer.ifPresentOrElse(
-                                                            player -> player.disconnect(
-                                                                    Component.text(
-                                                                            new ConfigFormatter(
-                                                                                    Config.getMessageNode().node("kick").getString()
-                                                                            )
-                                                                                    .putKV("reason", reason)
-                                                                                    .build()
-                                                                    )
-                                                            ),
-                                                            () -> {
-                                                                ctx.getSource().sendPlainMessage(
-                                                                        Config.getMessageNode().node("kickFailed").getString()
-                                                                );
-                                                            }
-                                                    );
+                optionalPlayer.ifPresentOrElse(
+                  player -> player.disconnect(
+                    Component.text(
+                      new ConfigFormatter(
+                        Config.getMessageNode().node("kick").getString()
+                      )
+                        .putKV("reason", reason)
+                        .build()
+                    )
+                  ),
+                  () -> {
+                    ctx.getSource().sendPlainMessage(
+                      Config.getMessageNode().node("kickFailed").getString()
+                    );
+                  }
+                );
 
-                                                    return Command.SINGLE_SUCCESS;
-                                                }
-                                        )
-                                )
-                        )
-        );
-    }
+                return Command.SINGLE_SUCCESS;
+              }
+            )
+          )
+        )
+    );
+  }
 }

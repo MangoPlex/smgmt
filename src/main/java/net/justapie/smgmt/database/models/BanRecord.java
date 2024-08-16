@@ -5,7 +5,6 @@ import dev.morphia.annotations.Id;
 import dev.morphia.annotations.Property;
 import org.bson.types.ObjectId;
 
-import java.math.BigInteger;
 import java.util.Date;
 
 @Entity
@@ -33,12 +32,12 @@ public class BanRecord {
     }
 
     public BanRecord(
-            ObjectId id,
-            String username,
-            String reason,
-            boolean isPermanent,
-            Date bannedOn,
-            Date bannedUntil
+      ObjectId id,
+      String username,
+      String reason,
+      boolean isPermanent,
+      Date bannedOn,
+      Date bannedUntil
     ) {
         this.id = id;
         this.username = username;

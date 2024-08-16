@@ -15,48 +15,48 @@ import java.util.Date;
 import java.util.List;
 
 public class Events {
-    @Subscribe(order =  PostOrder.EARLY)
-    public void onLogin(LoginEvent event) {
-        Player player = event.getPlayer();
+  @Subscribe(order = PostOrder.EARLY)
+  public void onLogin(LoginEvent event) {
+    Player player = event.getPlayer();
 
-        Query<BanRecord> recordQuery = MongoHelper.getInstance().getDs().find(BanRecord.class);
+    Query<BanRecord> recordQuery = MongoHelper.getInstance().getDs().find(BanRecord.class);
 
-        List<BanRecord> records = recordQuery.stream()
-                .sorted(
-                        (c1, c2) -> Math.toIntExact(c2.getBannedOn().getTime() - c1.getBannedOn().getTime())
-                )
-                .toList();
+    List<BanRecord> records = recordQuery.stream()
+      .sorted(
+        (c1, c2) -> Math.toIntExact(c2.getBannedOn().getTime() - c1.getBannedOn().getTime())
+      )
+      .toList();
 
 
-        if (!records.isEmpty()) {
-            BanRecord latestRecord = records.getFirst();
-            String reason = Config.getMessageNode().node("ban").getString();
+    if (!records.isEmpty()) {
+      BanRecord latestRecord = records.getFirst();
+      String reason = Config.getMessageNode().node("ban").getString();
 
-            if (!latestRecord.isPermanent())
-                reason = Config.getMessageNode().node("tempBan").getString();
+      if (!latestRecord.isPermanent())
+        reason = Config.getMessageNode().node("tempBan").getString();
 
-            if (latestRecord.isPermanent() || latestRecord.getBannedUntil().getTime() > new Date().getTime()) {
-                player.disconnect(
-                        Component.text(
-                                new ConfigFormatter(
-                                        reason
-                                )
-                                        .putKV(
-                                                "reason",
-                                                latestRecord.getReason()
-                                        )
-                                        .putKV(
-                                                "duration",
-                                                (latestRecord.getBannedUntil().getTime() - latestRecord.getBannedOn().getTime()) / 8.64e+7 + " days"
-                                        )
-                                        .putKV(
-                                                "unbanDate",
-                                                latestRecord.getBannedUntil().toString()
-                                        )
-                                        .build()
-                        )
-                );
-            }
-        }
+      if (latestRecord.isPermanent() || latestRecord.getBannedUntil().getTime() > new Date().getTime()) {
+        player.disconnect(
+          Component.text(
+            new ConfigFormatter(
+              reason
+            )
+              .putKV(
+                "reason",
+                latestRecord.getReason()
+              )
+              .putKV(
+                "duration",
+                (latestRecord.getBannedUntil().getTime() - latestRecord.getBannedOn().getTime()) / 8.64e+7 + " days"
+              )
+              .putKV(
+                "unbanDate",
+                latestRecord.getBannedUntil().toString()
+              )
+              .build()
+          )
+        );
+      }
     }
+  }
 }
