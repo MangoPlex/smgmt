@@ -1,12 +1,9 @@
 package net.justapie.smgmt;
 
-import com.velocitypowered.api.command.CommandResult;
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.command.PostCommandInvocationEvent;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.proxy.Player;
-import net.justapie.smgmt.commands.CmdManager;
 import net.justapie.smgmt.config.Config;
 import net.justapie.smgmt.config.ConfigFormatter;
 import net.justapie.smgmt.database.MongoUtils;
@@ -59,25 +56,4 @@ public class Events {
     }
   }
 
-  @Subscribe(order = PostOrder.EARLY)
-  public void onPostCommandInvocation(PostCommandInvocationEvent event) {
-    if (event.getResult().equals(CommandResult.FORWARDED)) {
-      CmdManager.getCommands().stream()
-        .filter(
-          c -> c.getNode().getName().equalsIgnoreCase(event.getCommand().split(" ")[0])
-        ).findFirst()
-        .ifPresentOrElse(
-          ctx -> {
-            event.getCommandSource().sendPlainMessage(
-              Config.getMessageNode().node("commandUsage").getString()
-            );
-          },
-          () -> {
-            event.getCommandSource().sendPlainMessage(
-              Config.getMessageNode().node("invalidCommand").getString()
-            );
-          }
-        );
-    }
-  }
 }
