@@ -4,9 +4,7 @@ import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.justapie.smgmt.commands.config.Reload;
-import net.justapie.smgmt.commands.moderation.Ban;
-import net.justapie.smgmt.commands.moderation.Kick;
-import net.justapie.smgmt.commands.moderation.Unban;
+import net.justapie.smgmt.commands.moderation.*;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -24,7 +22,9 @@ public class CmdManager {
       new Ban(),
       new Reload(dataDir),
       new Kick(),
-      new Unban()
+      new Unban(),
+      new Mute(),
+      new Unmute()
     );
   }
 
