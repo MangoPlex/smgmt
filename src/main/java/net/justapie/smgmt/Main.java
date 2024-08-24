@@ -5,7 +5,6 @@ import com.mongodb.MongoException;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
-import com.velocitypowered.api.plugin.PluginContainer;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.justapie.smgmt.commands.CmdManager;
@@ -16,7 +15,6 @@ import org.slf4j.Logger;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Optional;
 
 @Plugin(
   id = "smgmt",
@@ -46,13 +44,17 @@ public class Main {
     try {
       ConfigHelper.getInstance().initializeConfig(this.dataDirectory);
 
+      //TODO: Handle when database is unreachable, shutdown the plugin
       MongoHelper.getInstance().initializeDatabase();
     } catch (IOException | MongoException e) {
       if (e instanceof IOException) this.logger.error("Failed to load config. Shutting down");
       if (e instanceof MongoException) this.logger.error("Please specify mongodb connection string");
+
       logger.error(Arrays.toString(e.getStackTrace()));
-      Optional<PluginContainer> container = this.proxy.getPluginManager().getPlugin("smgmt");
-      container.ifPresent(ctx -> ctx.getExecutorService().shutdown());
+
+      this.proxy.getPluginManager().getPlugin("smgmt").ifPresent(
+        ctx -> ctx.getExecutorService().shutdown()
+      );
       return;
     }
 

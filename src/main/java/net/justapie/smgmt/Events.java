@@ -3,11 +3,13 @@ package net.justapie.smgmt;
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
+import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
 import net.justapie.smgmt.config.Config;
 import net.justapie.smgmt.config.ConfigFormatter;
 import net.justapie.smgmt.database.MongoUtils;
-import net.justapie.smgmt.database.models.BanRecord;
+import net.justapie.smgmt.database.models.Record;
+import net.justapie.smgmt.enums.RecordType;
 import net.kyori.adventure.text.Component;
 
 import java.util.Date;
@@ -19,10 +21,10 @@ public class Events {
   public void onLogin(LoginEvent event) {
     Player player = event.getPlayer();
 
-    List<BanRecord> records = MongoUtils.getRecords(player.getUsername());
+    List<Record> records = MongoUtils.getRecords(player.getUsername(), RecordType.BAN);
 
     if (!records.isEmpty()) {
-      BanRecord latestRecord = records.getFirst();
+      Record latestRecord = records.getFirst();
       String reason = Config.getMessageNode().node("ban").getString();
 
       if (!latestRecord.isPermanent())
@@ -30,7 +32,7 @@ public class Events {
 
       if (
         latestRecord.isPermanent() ||
-          (Objects.isNull(latestRecord.getUnbannedOn()) && latestRecord.getBannedUntil().getTime() > new Date().getTime())
+          (Objects.isNull(latestRecord.getExpiredOn()) && latestRecord.getActiveUntil().getTime() > new Date().getTime())
       ) {
         player.disconnect(
           Component.text(
@@ -43,15 +45,58 @@ public class Events {
               )
               .putKV(
                 "duration",
-                (latestRecord.getBannedUntil().getTime() - latestRecord.getBannedOn().getTime()) / 864e+5 + " days"
+                (latestRecord.getActiveUntil().getTime() - latestRecord.getCreatedOn().getTime()) / 864e+5 + " days"
               )
               .putKV(
                 "unbanDate",
-                latestRecord.getBannedUntil().toString()
+                latestRecord.getActiveUntil().toString()
               )
               .build()
           )
         );
+      }
+    }
+  }
+
+  @Subscribe(order = PostOrder.EARLY)
+  public void onPlayerChat(PlayerChatEvent event) {
+    Player player = event.getPlayer();
+
+    List<Record> records = MongoUtils.getRecords(player.getUsername(), RecordType.MUTE);
+
+    if (!records.isEmpty()) {
+      Record latestRecord = records.getFirst();
+
+      String reason = Config.getMessageNode().node("mute").getString();
+
+      if (!latestRecord.isPermanent())
+        reason = Config.getMessageNode().node("tempMute").getString();
+
+      if (
+        latestRecord.isPermanent() ||
+          (Objects.isNull(latestRecord.getExpiredOn()) && latestRecord.getActiveUntil().getTime() > new Date().getTime())
+      ) {
+        player.sendMessage(
+          Component.text(
+            new ConfigFormatter(
+              reason
+            )
+              .putKV(
+                "reason",
+                latestRecord.getReason()
+              )
+              .putKV(
+                "duration",
+                (latestRecord.getActiveUntil().getTime() - latestRecord.getCreatedOn().getTime()) / 864e+5 + " days"
+              )
+              .putKV(
+                "unmuteDate",
+                latestRecord.getActiveUntil().toString()
+              )
+              .build()
+          )
+        );
+        event.setResult(PlayerChatEvent.ChatResult.denied());
       }
     }
   }

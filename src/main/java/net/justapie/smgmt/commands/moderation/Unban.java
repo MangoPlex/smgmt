@@ -11,7 +11,8 @@ import net.justapie.smgmt.config.Config;
 import net.justapie.smgmt.config.ConfigFormatter;
 import net.justapie.smgmt.database.MongoHelper;
 import net.justapie.smgmt.database.MongoUtils;
-import net.justapie.smgmt.database.models.BanRecord;
+import net.justapie.smgmt.database.models.Record;
+import net.justapie.smgmt.enums.RecordType;
 
 import java.util.Date;
 import java.util.List;
@@ -43,7 +44,7 @@ public class Unban extends VCommand {
               ctx -> {
                 String username = ctx.getArgument("player", String.class);
 
-                List<BanRecord> records = MongoUtils.getRecords(username);
+                List<Record> records = MongoUtils.getRecords(username, RecordType.BAN);
 
                 if (records.isEmpty()) {
                   ctx.getSource().sendPlainMessage(
@@ -56,9 +57,9 @@ public class Unban extends VCommand {
                   return Command.SINGLE_SUCCESS;
                 }
 
-                BanRecord latestRecord = records.getFirst();
+                Record latestRecord = records.getFirst();
 
-                if (!Objects.isNull(latestRecord.getUnbannedOn()) || (!latestRecord.isPermanent() && latestRecord.getBannedUntil().getTime() < new Date().getTime())) {
+                if (!Objects.isNull(latestRecord.getExpiredOn()) || (!latestRecord.isPermanent() && latestRecord.getActiveUntil().getTime() < new Date().getTime())) {
                   ctx.getSource().sendPlainMessage(
                     new ConfigFormatter(
                       Config.getMessageNode().node("noRecord").getString()
@@ -72,16 +73,16 @@ public class Unban extends VCommand {
                 if (latestRecord.isPermanent()) {
                   latestRecord.setPermanent(false);
                 } else {
-                  latestRecord.setUnbannedOn(new Date());
+                  latestRecord.setExpiredOn(new Date());
                 }
 
-                MongoHelper.getInstance().getDs().find(BanRecord.class)
+                MongoHelper.getInstance().getDs().find(Record.class)
                   .filter(
                     Filters.eq("_id", latestRecord.getId())
                   )
                   .update(
                     UpdateOperators.set("isPermanent", latestRecord.isPermanent()),
-                    UpdateOperators.set("unbannedOn", latestRecord.getUnbannedOn())
+                    UpdateOperators.set("expiredOn", latestRecord.getExpiredOn())
                   );
 
                 ctx.getSource().sendPlainMessage(

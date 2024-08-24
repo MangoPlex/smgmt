@@ -10,7 +10,8 @@ import net.justapie.smgmt.config.Config;
 import net.justapie.smgmt.config.ConfigFormatter;
 import net.justapie.smgmt.database.MongoHelper;
 import net.justapie.smgmt.database.MongoUtils;
-import net.justapie.smgmt.database.models.BanRecord;
+import net.justapie.smgmt.database.models.Record;
+import net.justapie.smgmt.enums.RecordType;
 import net.kyori.adventure.text.Component;
 import org.bson.types.ObjectId;
 
@@ -103,12 +104,12 @@ public class Ban extends VCommand {
                           );
                         }
 
-                        List<BanRecord> records = MongoUtils.getRecords(username);
+                        List<Record> records = MongoUtils.getRecords(username, RecordType.BAN);
 
                         if (!records.isEmpty()) {
-                          BanRecord banRecord = records.getFirst();
+                          Record record = records.getFirst();
 
-                          if (banRecord.isPermanent() || (Objects.isNull(banRecord.getUnbannedOn()) && banRecord.getBannedUntil().getTime() > now.getTime())) {
+                          if (record.isPermanent() || (Objects.isNull(record.getExpiredOn()) && record.getActiveUntil().getTime() > now.getTime())) {
                             ctx.getSource().sendPlainMessage(
                               new ConfigFormatter(
                                 Config.getMessageNode().node("alreadyBanned").getString()
@@ -121,9 +122,10 @@ public class Ban extends VCommand {
                         }
 
                         MongoHelper.getInstance().getDs().insert(
-                          new BanRecord(
+                          new Record(
                             new ObjectId(),
                             username,
+                            RecordType.BAN,
                             reason,
                             durString.equals("permanent"),
                             now,

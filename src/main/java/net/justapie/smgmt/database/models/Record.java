@@ -3,47 +3,52 @@ package net.justapie.smgmt.database.models;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 import dev.morphia.annotations.Property;
+import net.justapie.smgmt.enums.RecordType;
 import org.bson.types.ObjectId;
 
 import java.util.Date;
 
 @Entity
-public class BanRecord {
-  @Property
-  Date unbannedOn;
+public class Record {
   @Id
   private ObjectId id;
   @Property
   private String username;
   @Property
-  private String reason;
+  Date expiredOn;
+  @Property
+  private RecordType type;
   @Property
   private boolean isPermanent;
   @Property
-  private Date bannedOn;
+  private String reason;
   @Property
-  private Date bannedUntil;
+  private Date createdOn;
+  @Property
+  private Date activeUntil;
 
-  public BanRecord() {
+  public Record() {
 
   }
 
-  public BanRecord(
+  public Record(
     ObjectId id,
     String username,
+    RecordType type,
     String reason,
     boolean isPermanent,
-    Date bannedOn,
-    Date bannedUntil,
-    Date unbannedOn
+    Date createdOn,
+    Date activeUntil,
+    Date expiredOn
   ) {
     this.id = id;
     this.username = username;
+    this.type = type;
     this.reason = reason;
     this.isPermanent = isPermanent;
-    this.bannedOn = bannedOn;
-    this.bannedUntil = bannedUntil;
-    this.unbannedOn = unbannedOn;
+    this.createdOn = createdOn;
+    this.activeUntil = activeUntil;
+    this.expiredOn = expiredOn;
   }
 
   public ObjectId getId() {
@@ -52,6 +57,10 @@ public class BanRecord {
 
   public String getUsername() {
     return username;
+  }
+
+  public RecordType getType() {
+    return this.type;
   }
 
   public String getReason() {
@@ -66,23 +75,23 @@ public class BanRecord {
     isPermanent = permanent;
   }
 
-  public Date getBannedOn() {
-    return bannedOn;
+  public Date getCreatedOn() {
+    return this.createdOn;
   }
 
-  public Date getBannedUntil() {
-    return bannedUntil;
+  public Date getActiveUntil() {
+    return this.activeUntil;
   }
 
-  public void setBannedUntil(Date bannedUntil) {
-    this.bannedUntil = bannedUntil;
+  public void setActiveUntil(Date activeUntil) {
+    this.activeUntil = activeUntil;
   }
 
-  public Date getUnbannedOn() {
-    return unbannedOn;
+  public Date getExpiredOn() {
+    return this.expiredOn;
   }
 
-  public void setUnbannedOn(Date unbannedOn) {
-    this.unbannedOn = unbannedOn;
+  public void setExpiredOn(Date expiredOn) {
+    this.expiredOn = expiredOn;
   }
 }
