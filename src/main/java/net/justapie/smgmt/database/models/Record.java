@@ -3,6 +3,9 @@ package net.justapie.smgmt.database.models;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 import dev.morphia.annotations.Property;
+import dev.morphia.query.filters.Filters;
+import dev.morphia.query.updates.UpdateOperators;
+import net.justapie.smgmt.database.MongoHelper;
 import net.justapie.smgmt.enums.RecordType;
 import org.bson.types.ObjectId;
 
@@ -31,48 +34,26 @@ public class Record {
 
   }
 
-  public Record(
-    ObjectId id,
-    String username,
-    RecordType type,
-    String reason,
-    boolean isPermanent,
-    Date createdOn,
-    Date activeUntil,
-    Date expiredOn
-  ) {
-    this.id = id;
-    this.username = username;
-    this.type = type;
-    this.reason = reason;
-    this.isPermanent = isPermanent;
-    this.createdOn = createdOn;
-    this.activeUntil = activeUntil;
-    this.expiredOn = expiredOn;
-  }
-
   public ObjectId getId() {
-    return id;
+    return this.id;
   }
 
-  public String getUsername() {
-    return username;
+  public Record setId(ObjectId id) {
+    this.id = id;
+    return this;
   }
 
   public RecordType getType() {
     return this.type;
   }
 
-  public String getReason() {
-    return reason;
+  public String getUsername() {
+    return this.username;
   }
 
-  public boolean isPermanent() {
-    return isPermanent;
-  }
-
-  public void setPermanent(boolean permanent) {
-    isPermanent = permanent;
+  public Record setUsername(String username) {
+    this.username = username;
+    return this;
   }
 
   public Date getCreatedOn() {
@@ -83,15 +64,63 @@ public class Record {
     return this.activeUntil;
   }
 
-  public void setActiveUntil(Date activeUntil) {
-    this.activeUntil = activeUntil;
-  }
-
   public Date getExpiredOn() {
     return this.expiredOn;
   }
 
-  public void setExpiredOn(Date expiredOn) {
+  public String getReason() {
+    return this.reason;
+  }
+
+  public Record setReason(String reason) {
+    this.reason = reason;
+    return this;
+  }
+
+  public boolean isPermanent() {
+    return this.isPermanent;
+  }
+
+  public Record setPermanent(boolean permanent) {
+    this.isPermanent = permanent;
+    return this;
+  }
+
+  public Record setType(RecordType type) {
+    this.type = type;
+    return this;
+  }
+
+  public Record setCreatedOn(Date createdOn) {
+    this.createdOn = createdOn;
+    return this;
+  }
+
+  public Record setActiveUntil(Date activeUntil) {
+    this.activeUntil = activeUntil;
+    return this;
+  }
+
+  public Record setExpiredOn(Date expiredOn) {
     this.expiredOn = expiredOn;
+    return this;
+  }
+
+  public void deactivateRecord() {
+    if (this.isPermanent()) this.setPermanent(false);
+    else this.setActiveUntil(new Date());
+
+    MongoHelper.getInstance().getDs().find(this.getClass())
+      .filter(
+        Filters.eq("_id", this.getId())
+      )
+      .update(
+        UpdateOperators.set("isPermanent", this.isPermanent()),
+        UpdateOperators.set("expiredOn", this.getExpiredOn())
+      );
+  }
+
+  public void submitRecord() {
+    MongoHelper.getInstance().getDs().insert(this);
   }
 }

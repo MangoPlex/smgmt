@@ -6,16 +6,14 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.justapie.smgmt.Constants;
 import net.justapie.smgmt.commands.VCommand;
-import net.justapie.smgmt.database.MongoHelper;
 import net.justapie.smgmt.database.MongoUtils;
 import net.justapie.smgmt.database.models.Record;
 import net.justapie.smgmt.enums.RecordType;
+import net.justapie.smgmt.utils.Utils;
 import net.justapie.smgmt.utils.config.Config;
 import net.justapie.smgmt.utils.config.ConfigFormatter;
 import org.bson.types.ObjectId;
 
-import java.time.Duration;
-import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -55,12 +53,7 @@ public class Mute extends VCommand {
                           return Command.SINGLE_SUCCESS;
                         }
 
-                        long duration = 0;
-                        try {
-                          duration = Duration.parse("P" + durString).toMillis();
-                        } catch (ArithmeticException |
-                                 DateTimeParseException ignored) {
-                        }
+                        long duration = Utils.parseDuration(durString);
 
                         if (duration != 0) {
                           muteMsg = Config.getMessageNode()
@@ -83,7 +76,6 @@ public class Mute extends VCommand {
 
                         if (!records.isEmpty()) {
                           Record record = records.getFirst();
-
                           if (record.isPermanent() || (Objects.isNull(record.getExpiredOn()) && record.getActiveUntil().getTime() > now.getTime())) {
                             ctx.getSource().sendPlainMessage(
                               new ConfigFormatter(
@@ -96,22 +88,20 @@ public class Mute extends VCommand {
                           }
                         }
 
-                        MongoHelper.getInstance().getDs().insert(
-                          new Record(
-                            new ObjectId(),
-                            username,
-                            RecordType.MUTE,
-                            reason,
-                            durString.equals("permanent"),
-                            now,
-                            new Date(now.getTime() + duration),
-                            null
-                          )
-                        );
+                        new Record()
+                          .setId(new ObjectId())
+                          .setUsername(username)
+                          .setType(RecordType.MUTE)
+                          .setReason(reason)
+                          .setPermanent(durString.equals("permanent"))
+                          .setCreatedOn(now)
+                          .setExpiredOn(new Date(now.getTime() + duration))
+                          .setExpiredOn(null)
+                          .submitRecord();
 
                         ctx.getSource().sendPlainMessage(
                           new ConfigFormatter(
-                            Config.getMessageNode().node("playerMuted").getString()
+                            muteMsg
                           )
                             .putKV("player", username)
                             .build()

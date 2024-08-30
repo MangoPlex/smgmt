@@ -4,10 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.proxy.ProxyServer;
-import dev.morphia.query.filters.Filters;
-import dev.morphia.query.updates.UpdateOperators;
 import net.justapie.smgmt.commands.VCommand;
-import net.justapie.smgmt.database.MongoHelper;
 import net.justapie.smgmt.database.MongoUtils;
 import net.justapie.smgmt.database.models.Record;
 import net.justapie.smgmt.enums.RecordType;
@@ -70,20 +67,7 @@ public class Unban extends VCommand {
                   return Command.SINGLE_SUCCESS;
                 }
 
-                if (latestRecord.isPermanent()) {
-                  latestRecord.setPermanent(false);
-                } else {
-                  latestRecord.setExpiredOn(new Date());
-                }
-
-                MongoHelper.getInstance().getDs().find(Record.class)
-                  .filter(
-                    Filters.eq("_id", latestRecord.getId())
-                  )
-                  .update(
-                    UpdateOperators.set("isPermanent", latestRecord.isPermanent()),
-                    UpdateOperators.set("expiredOn", latestRecord.getExpiredOn())
-                  );
+                latestRecord.deactivateRecord();
 
                 ctx.getSource().sendPlainMessage(
                   new ConfigFormatter(

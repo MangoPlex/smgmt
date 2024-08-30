@@ -6,17 +6,15 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.justapie.smgmt.Constants;
 import net.justapie.smgmt.commands.VCommand;
-import net.justapie.smgmt.database.MongoHelper;
 import net.justapie.smgmt.database.MongoUtils;
 import net.justapie.smgmt.database.models.Record;
 import net.justapie.smgmt.enums.RecordType;
+import net.justapie.smgmt.utils.Utils;
 import net.justapie.smgmt.utils.config.Config;
 import net.justapie.smgmt.utils.config.ConfigFormatter;
 import net.kyori.adventure.text.Component;
 import org.bson.types.ObjectId;
 
-import java.time.Duration;
-import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -56,12 +54,7 @@ public class Ban extends VCommand {
                           return Command.SINGLE_SUCCESS;
                         }
 
-                        long duration = 0;
-                        try {
-                          duration = Duration.parse("P" + durString).toMillis();
-                        } catch (ArithmeticException |
-                                 DateTimeParseException ignored) {
-                        }
+                        long duration = Utils.parseDuration(durString);
 
                         if (duration != 0) {
                           banMsg = Config.getMessageNode()
@@ -121,18 +114,16 @@ public class Ban extends VCommand {
                           }
                         }
 
-                        MongoHelper.getInstance().getDs().insert(
-                          new Record(
-                            new ObjectId(),
-                            username,
-                            RecordType.BAN,
-                            reason,
-                            durString.equals("permanent"),
-                            now,
-                            new Date(now.getTime() + duration),
-                            null
-                          )
-                        );
+                        new Record()
+                          .setId(new ObjectId())
+                          .setUsername(username)
+                          .setType(RecordType.BAN)
+                          .setReason(reason)
+                          .setPermanent(durString.equals("permanent"))
+                          .setCreatedOn(now)
+                          .setExpiredOn(new Date(now.getTime() + duration))
+                          .setExpiredOn(null)
+                          .submitRecord();
 
                         ctx.getSource().sendPlainMessage(
                           new ConfigFormatter(

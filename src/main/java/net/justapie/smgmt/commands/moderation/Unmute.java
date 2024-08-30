@@ -3,11 +3,8 @@ package net.justapie.smgmt.commands.moderation;
 import com.mojang.brigadier.Command;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.proxy.ProxyServer;
-import dev.morphia.query.filters.Filters;
-import dev.morphia.query.updates.UpdateOperators;
 import net.justapie.smgmt.Constants;
 import net.justapie.smgmt.commands.VCommand;
-import net.justapie.smgmt.database.MongoHelper;
 import net.justapie.smgmt.database.MongoUtils;
 import net.justapie.smgmt.database.models.Record;
 import net.justapie.smgmt.enums.RecordType;
@@ -60,20 +57,7 @@ public class Unmute extends VCommand {
                   return Command.SINGLE_SUCCESS;
                 }
 
-                if (latestRecord.isPermanent()) {
-                  latestRecord.setPermanent(false);
-                } else {
-                  latestRecord.setExpiredOn(new Date());
-                }
-
-                MongoHelper.getInstance().getDs().find(Record.class)
-                  .filter(
-                    Filters.eq("_id", latestRecord.getId())
-                  )
-                  .update(
-                    UpdateOperators.set("isPermanent", latestRecord.isPermanent()),
-                    UpdateOperators.set("expiredOn", latestRecord.getExpiredOn())
-                  );
+                latestRecord.deactivateRecord();
 
                 ctx.getSource().sendPlainMessage(
                   new ConfigFormatter(
