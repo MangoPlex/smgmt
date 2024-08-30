@@ -1,4 +1,4 @@
-package net.justapie.smgmt.config;
+package net.justapie.smgmt.utils.config;
 
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;

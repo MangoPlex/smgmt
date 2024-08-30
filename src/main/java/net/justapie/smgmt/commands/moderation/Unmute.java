@@ -7,12 +7,12 @@ import dev.morphia.query.filters.Filters;
 import dev.morphia.query.updates.UpdateOperators;
 import net.justapie.smgmt.Constants;
 import net.justapie.smgmt.commands.VCommand;
-import net.justapie.smgmt.config.Config;
-import net.justapie.smgmt.config.ConfigFormatter;
 import net.justapie.smgmt.database.MongoHelper;
 import net.justapie.smgmt.database.MongoUtils;
 import net.justapie.smgmt.database.models.Record;
 import net.justapie.smgmt.enums.RecordType;
+import net.justapie.smgmt.utils.config.Config;
+import net.justapie.smgmt.utils.config.ConfigFormatter;
 
 import java.util.Date;
 import java.util.List;

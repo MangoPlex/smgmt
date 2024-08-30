@@ -6,8 +6,8 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.justapie.smgmt.Constants;
 import net.justapie.smgmt.commands.VCommand;
-import net.justapie.smgmt.config.Config;
-import net.justapie.smgmt.config.ConfigFormatter;
+import net.justapie.smgmt.utils.config.Config;
+import net.justapie.smgmt.utils.config.ConfigFormatter;
 import net.kyori.adventure.text.Component;
 
 import java.util.Optional;

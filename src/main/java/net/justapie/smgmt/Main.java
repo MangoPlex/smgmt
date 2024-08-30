@@ -8,8 +8,8 @@ import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.justapie.smgmt.commands.CmdManager;
-import net.justapie.smgmt.config.ConfigHelper;
 import net.justapie.smgmt.database.MongoHelper;
+import net.justapie.smgmt.utils.config.ConfigHelper;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ import java.util.Arrays;
   authors = "JustAPie",
   version = BuildConstants.VERSION
 )
-public class Main {
+public final class Main {
   private final ProxyServer proxy;
   private final Logger logger;
   private final Path dataDirectory;
@@ -38,27 +38,23 @@ public class Main {
   @Subscribe
   public void onProxyInitialization(ProxyInitializeEvent event) {
     this.proxy.getEventManager().register(this, new Events());
-
     new CmdManager(this.proxy, this.dataDirectory);
 
     try {
       ConfigHelper.getInstance().initializeConfig(this.dataDirectory);
+    } catch (IOException e) {
+      this.logger.error("Config file is malformed");
+      this.logger.error(Arrays.toString(e.getStackTrace()));
+    }
 
-      //TODO: Handle when database is unreachable, shutdown the plugin
+    try {
+      MongoHelper.getInstance().testConnection();
       MongoHelper.getInstance().initializeDatabase();
-    } catch (IOException | MongoException e) {
-      if (e instanceof IOException) this.logger.error("Failed to load config. Shutting down");
-      if (e instanceof MongoException) this.logger.error("Please specify mongodb connection string");
-
-      logger.error(Arrays.toString(e.getStackTrace()));
-
-      this.proxy.getPluginManager().getPlugin("smgmt").ifPresent(
-        ctx -> ctx.getExecutorService().shutdown()
-      );
-      return;
+    } catch (MongoException e) {
+      this.logger.error("MongoDB database is unreachable");
+      this.logger.error(Arrays.toString(e.getStackTrace()));
     }
 
     this.logger.info("SMGMT is initialized");
   }
-
 }

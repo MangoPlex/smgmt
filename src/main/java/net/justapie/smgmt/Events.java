@@ -5,11 +5,11 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
-import net.justapie.smgmt.config.Config;
-import net.justapie.smgmt.config.ConfigFormatter;
 import net.justapie.smgmt.database.MongoUtils;
 import net.justapie.smgmt.database.models.Record;
 import net.justapie.smgmt.enums.RecordType;
+import net.justapie.smgmt.utils.config.Config;
+import net.justapie.smgmt.utils.config.ConfigFormatter;
 import net.kyori.adventure.text.Component;
 
 import java.util.Date;
