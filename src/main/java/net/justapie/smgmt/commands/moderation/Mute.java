@@ -12,7 +12,6 @@ import net.justapie.smgmt.enums.RecordType;
 import net.justapie.smgmt.utils.Utils;
 import net.justapie.smgmt.utils.config.Config;
 import net.justapie.smgmt.utils.config.ConfigFormatter;
-import org.bson.types.ObjectId;
 
 import java.util.Date;
 import java.util.List;
@@ -90,7 +89,6 @@ public class Mute extends VCommand {
                         }
 
                         new Record()
-                          .setId(new ObjectId())
                           .setUsername(username)
                           .setType(RecordType.MUTE)
                           .setReason(reason)
@@ -98,7 +96,7 @@ public class Mute extends VCommand {
                           .setCreatedOn(now)
                           .setActiveUntil(new Date(now.getTime() + duration))
                           .setExpiredOn(null)
-                          .submitRecord();
+                          .submit();
 
                         String finalMuteMsg = muteMsg;
                         optionalPlayer.ifPresent(

@@ -1,20 +1,16 @@
 package net.justapie.smgmt.database.models;
 
 import dev.morphia.annotations.Entity;
-import dev.morphia.annotations.Id;
 import dev.morphia.annotations.Property;
 import dev.morphia.query.filters.Filters;
 import dev.morphia.query.updates.UpdateOperators;
 import net.justapie.smgmt.database.MongoHelper;
 import net.justapie.smgmt.enums.RecordType;
-import org.bson.types.ObjectId;
 
 import java.util.Date;
 
 @Entity
-public class Record {
-  @Id
-  private ObjectId id;
+public class Record extends BaseModel {
   @Property
   private String username;
   @Property
@@ -32,15 +28,6 @@ public class Record {
 
   public Record() {
 
-  }
-
-  public ObjectId getId() {
-    return this.id;
-  }
-
-  public Record setId(ObjectId id) {
-    this.id = id;
-    return this;
   }
 
   public RecordType getType() {
@@ -118,9 +105,5 @@ public class Record {
         UpdateOperators.set("isPermanent", this.isPermanent()),
         UpdateOperators.set("expiredOn", this.getExpiredOn())
       );
-  }
-
-  public void submitRecord() {
-    MongoHelper.getInstance().getDs().insert(this);
   }
 }

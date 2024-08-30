@@ -13,7 +13,6 @@ import net.justapie.smgmt.utils.Utils;
 import net.justapie.smgmt.utils.config.Config;
 import net.justapie.smgmt.utils.config.ConfigFormatter;
 import net.kyori.adventure.text.Component;
-import org.bson.types.ObjectId;
 
 import java.util.Date;
 import java.util.List;
@@ -115,7 +114,6 @@ public class Ban extends VCommand {
                         }
 
                         new Record()
-                          .setId(new ObjectId())
                           .setUsername(username)
                           .setType(RecordType.BAN)
                           .setReason(reason)
@@ -123,7 +121,7 @@ public class Ban extends VCommand {
                           .setCreatedOn(now)
                           .setActiveUntil(new Date(now.getTime() + duration))
                           .setExpiredOn(null)
-                          .submitRecord();
+                          .submit();
 
                         ctx.getSource().sendPlainMessage(
                           new ConfigFormatter(
