@@ -7,6 +7,7 @@ import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
 import net.justapie.smgmt.database.MongoUtils;
 import net.justapie.smgmt.database.models.Record;
+import net.justapie.smgmt.database.models.User;
 import net.justapie.smgmt.enums.RecordType;
 import net.justapie.smgmt.utils.config.Config;
 import net.justapie.smgmt.utils.config.ConfigFormatter;
@@ -20,6 +21,22 @@ public class Events {
   @Subscribe(order = PostOrder.EARLY)
   public void onLogin(LoginEvent event) {
     Player player = event.getPlayer();
+
+    if (Config.getAntiSpoofingNode().node("enabled").getString().equalsIgnoreCase("true")) {
+      User user = MongoUtils.findPlayer(player.getUsername());
+      if (Objects.isNull(user)) {
+        new User()
+          .setUsername(player.getUsername())
+          .setJoinedOn(new Date())
+          .submit();
+      } else if (!player.getUsername().equals(user.getUsername())) {
+        player.disconnect(
+          Component.text(
+            Config.getMessageNode().node("playerExist").getString()
+          )
+        );
+      }
+    }
 
     List<Record> records = MongoUtils.getRecords(player.getUsername(), RecordType.BAN);
 

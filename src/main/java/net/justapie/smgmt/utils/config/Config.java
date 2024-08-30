@@ -7,6 +7,10 @@ public class Config {
     return ConfigHelper.getInstance().getConfig().node("messages");
   }
 
+  public static CommentedConfigurationNode getAntiSpoofingNode() {
+    return ConfigHelper.getInstance().getConfig().node("antiSpoofing");
+  }
+
   public static CommentedConfigurationNode getDatabaseNode() {
     return ConfigHelper.getInstance().getConfig().node("database");
   }

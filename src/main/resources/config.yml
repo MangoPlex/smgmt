@@ -5,6 +5,9 @@ database:
   # NOTE: Change the dbName if you want to use a database having a custom name
   mongodb-connection-string: ""
 
+antiSpoofing:
+  enabled: false
+
 
 messages:
   ban: "You have been permanently banned from this server. Reason: {reason}"
@@ -26,3 +29,4 @@ messages:
   alreadyMuted: "Player {player} is already muted"
   playerMuted: "Player {player} is muted"
   unmuted: "Player {player} unmuted"
+  playerExist: "Your account already exists."
