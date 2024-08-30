@@ -76,6 +76,7 @@ public class Mute extends VCommand {
 
                         if (!records.isEmpty()) {
                           Record record = records.getFirst();
+
                           if (record.isPermanent() || (Objects.isNull(record.getExpiredOn()) && record.getActiveUntil().getTime() > now.getTime())) {
                             ctx.getSource().sendPlainMessage(
                               new ConfigFormatter(
@@ -95,13 +96,27 @@ public class Mute extends VCommand {
                           .setReason(reason)
                           .setPermanent(durString.equals("permanent"))
                           .setCreatedOn(now)
-                          .setExpiredOn(new Date(now.getTime() + duration))
+                          .setActiveUntil(new Date(now.getTime() + duration))
                           .setExpiredOn(null)
                           .submitRecord();
 
+                        String finalMuteMsg = muteMsg;
+                        optionalPlayer.ifPresent(
+                          player ->
+                            player.sendPlainMessage(
+                              new ConfigFormatter(
+                                finalMuteMsg
+                              )
+                                .putKV("duration", durString)
+                                .putKV("reason", reason)
+                                .putKV("unmuteDate", String.valueOf(new Date(now.getTime() + duration)))
+                                .build()
+                            )
+                        );
+
                         ctx.getSource().sendPlainMessage(
                           new ConfigFormatter(
-                            muteMsg
+                            Config.getMessageNode().node("playerMuted").getString()
                           )
                             .putKV("player", username)
                             .build()

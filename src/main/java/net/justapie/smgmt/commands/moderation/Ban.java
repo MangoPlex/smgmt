@@ -121,7 +121,7 @@ public class Ban extends VCommand {
                           .setReason(reason)
                           .setPermanent(durString.equals("permanent"))
                           .setCreatedOn(now)
-                          .setExpiredOn(new Date(now.getTime() + duration))
+                          .setActiveUntil(new Date(now.getTime() + duration))
                           .setExpiredOn(null)
                           .submitRecord();
 
