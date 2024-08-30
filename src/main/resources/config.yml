@@ -6,8 +6,10 @@ database:
   mongodb-connection-string: ""
 
 antiSpoofing:
+  # If enabled, players having similar name cannot join the server
+  # Example: xXxPlayerxXx is similar to xxxplAYerxxX so if either of these usernames joins the server first
+  # the remaining username will not be allowed to connect to the server
   enabled: false
-
 
 messages:
   ban: "You have been permanently banned from this server. Reason: {reason}"
