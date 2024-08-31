@@ -32,15 +32,20 @@ public class Reload extends VCommand {
           .executes(ctx -> {
             try {
               ConfigHelper.getInstance().initializeConfig(dataDir);
-
-              MongoHelper.getInstance().testConnection();
-            } catch (IOException | MongoException e) {
+            } catch (IOException e) {
               e.printStackTrace();
-              if (e instanceof IOException) ctx.getSource().sendPlainMessage("Error while reloading config");
-              if (e instanceof MongoException) ctx.getSource().sendPlainMessage("Error while connecting to database");
+              ctx.getSource().sendPlainMessage("Error while reloading config");
               return Command.SINGLE_SUCCESS;
             }
-            MongoHelper.getInstance().initializeDatabase();
+
+            try {
+              MongoHelper.getInstance().testConnection();
+              MongoHelper.getInstance().initializeDatabase();
+            } catch (MongoException e) {
+              e.printStackTrace();
+              ctx.getSource().sendPlainMessage("Error while connecting to database");
+              return Command.SINGLE_SUCCESS;
+            }
 
             ctx.getSource().sendPlainMessage("Config reloaded successfully");
             return Command.SINGLE_SUCCESS;
